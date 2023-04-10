@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Line Graph Example</title>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+	<div id="chart"></div>
+	<script>
+		// Load the data from the CSV file
+		d3.csv("Electric_Vehicle_Population_Data.csv", function(data) {
+			var years = [];
+			var makes = {};
+			data.forEach(function(d) {
+				if (years.indexOf(d["Model Year"]) === -1) {
+					years.push(d["Model Year"]);
+				}
+				if (makes[d["Maker"]] === undefined) {
+					makes[d["Maker"]] = [];
+				}
+				makes[d["Maker"]].push(d["Model Year"]);
+			});
+			
+			// Create the traces for each make
+			var traces = [];
+			for (var make in makes) {
+				var yearsCount = {};
+				makes[make].forEach(function(year) {
+					if (yearsCount[year] === undefined) {
+						yearsCount[year] = 0;
+					}
+					yearsCount[year]++;
+				});
+				var yearsData = [];
+				years.forEach(function(year) {
+					yearsData.push(yearsCount[year] || 0);
+				});
+				traces.push({
+					x: years,
+					y: yearsData,
+					mode: 'lines+markers',
+					name: make
+				});
+			}
+			
+			// Create the layout
+			var layout = {
+				title: 'Car Models by Year and Make',
+				xaxis: {
+					title: 'Year'
+				},
+				yaxis: {
+					title: 'Number of Models'
+				}
+			};
+			
+			// Create the chart
+			Plotly.newPlot('chart', traces, layout);
+		});
+	</script>
+</body>
+</html>
